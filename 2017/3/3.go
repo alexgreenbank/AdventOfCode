@@ -1,0 +1,106 @@
+// --- Day 3: Spiral Memory ---
+// 
+// You come across an experimental new kind of memory stored on an infinite two-dimensional grid.
+// 
+// Each square on the grid is allocated in a spiral pattern starting at a location marked 1 and then counting up while spiraling outward. For example, the first few squares are allocated like this:
+// 
+// 17  16  15  14  13
+// 18   5   4   3  12
+// 19   6   1   2  11
+// 20   7   8   9  10
+// 21  22  23---> ...
+// 
+// While this is very space-efficient (no squares are skipped), requested data must be carried back to square 1 (the location of the only access port for this memory system) by programs that can only move up, down, left, or right. They always take the shortest path: the Manhattan Distance between the location of the data and square 1.
+// 
+// For example:
+// 
+//     Data from square 1 is carried 0 steps, since it's at the access port.
+//     Data from square 12 is carried 3 steps, such as: down, left, left.
+//     Data from square 23 is carried only 2 steps: up twice.
+//     Data from square 1024 must be carried 31 steps.
+// 
+// How many steps are required to carry the data from the square identified in your puzzle input all the way to the access port?
+
+package main
+
+import (
+	"strconv"
+	"fmt"
+	"os"
+)
+
+// Simple integer absolute function
+func Iabs( val int ) int {
+	if val < 0  {
+		return( -val )
+	}
+	return( val )
+}
+
+func main() {
+	if len( os.Args ) < 2 {
+		fmt.Println( os.Args[0]+": <nos>" )
+		return	
+	}
+	nos, _ := strconv.Atoi( os.Args[1] )
+
+	// Store the nodes in a map linked by x,y co-ords
+	type Key struct {
+		x, y int
+	}
+	nodes := make(map[Key]int)
+
+	// Initialise values
+	val := 1
+	nodes[Key{ 0, 0 }] = val
+	x := 0
+	y := 0
+	dir := "E"
+
+	for val < nos {
+		// Move one more place on in current direction and increment value
+		val++
+		if dir == "E" {
+			x+=1
+		} else if dir == "N" {
+			y+=1
+		} else if dir == "W" {
+			x-=1
+		} else if dir == "S" {
+			y-=1
+		} else {
+			fmt.Println( "ERROR, Unhandled direction ["+dir+"]" )
+			return
+		}
+		// Set value at this location
+		nodes[Key{ x, y }] = val
+		// If spot to the 'left' of here is empty then we need to turn left
+		if dir == "E" {
+			// Check if value to 'left' (N) exists
+			_, prs := nodes[Key{ x, y+1 }]
+			if !prs { // No value, Turn left (N)
+				dir = "N"
+			}
+		} else if dir == "N" {
+			// Check if value to 'left' (W) exists
+			_, prs := nodes[Key{ x-1, y }]
+			if !prs { // No value, Turn left (W)
+				dir = "W"
+			}
+		} else if dir == "W" {
+			// Check if value to 'left' (S) exists
+			_, prs := nodes[Key{ x, y-1 }]
+			if !prs { // No value, Turn left (S)
+				dir = "S"
+			}
+		} else if dir == "S" {
+			// Check if value to 'left' (E) exists
+			_, prs := nodes[Key{ x+1, y }]
+			if !prs { // No value, Turn left (E)
+				dir = "E"
+			}
+		}
+	}
+	// Output the answer for part a
+	fmt.Println( Iabs(x)+Iabs(y) )
+}
