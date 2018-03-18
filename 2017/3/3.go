@@ -21,6 +21,28 @@
 // 
 // How many steps are required to carry the data from the square identified in your puzzle input all the way to the access port?
 
+// --- Part Two ---
+// 
+// As a stress test on the system, the programs here clear the grid and then store the value 1 in square 1. Then, in the same allocation order as shown above, they store the sum of the values in all adjacent squares, including diagonals.
+// 
+// So, the first few squares' values are chosen as follows:
+// 
+//     Square 1 starts with the value 1.
+//     Square 2 has only one adjacent filled square (with value 1), so it also stores 1.
+//     Square 3 has both of the above squares as neighbors and stores the sum of their values, 2.
+//     Square 4 has all three of the aforementioned squares as neighbors and stores the sum of their values, 4.
+//     Square 5 only has the first and fourth squares as neighbors, so it gets the value 5.
+// 
+// Once a square is written, its value does not change. Therefore, the first few squares would receive the following values:
+// 
+// 147  142  133  122   59
+// 304    5    4    2   57
+// 330   10    1    1   54
+// 351   11   23   25   26
+// 362  747  806--->   ...
+// 
+// What is the first value written that is larger than your puzzle input?
+
 package main
 
 import (
@@ -75,26 +97,22 @@ func main() {
 		// Set value at this location
 		nodes[Key{ x, y }] = val
 		// If spot to the 'left' of here is empty then we need to turn left
-		if dir == "E" {
-			// Check if value to 'left' (N) exists
+		if dir == "E" { // Check if value to 'left' (N) exists
 			_, prs := nodes[Key{ x, y+1 }]
 			if !prs { // No value, Turn left (N)
 				dir = "N"
 			}
-		} else if dir == "N" {
-			// Check if value to 'left' (W) exists
+		} else if dir == "N" { // Check if value to 'left' (W) exists
 			_, prs := nodes[Key{ x-1, y }]
 			if !prs { // No value, Turn left (W)
 				dir = "W"
 			}
-		} else if dir == "W" {
-			// Check if value to 'left' (S) exists
+		} else if dir == "W" { // Check if value to 'left' (S) exists
 			_, prs := nodes[Key{ x, y-1 }]
 			if !prs { // No value, Turn left (S)
 				dir = "S"
 			}
-		} else if dir == "S" {
-			// Check if value to 'left' (E) exists
+		} else if dir == "S" { // Check if value to 'left' (E) exists
 			_, prs := nodes[Key{ x+1, y }]
 			if !prs { // No value, Turn left (E)
 				dir = "E"
@@ -103,4 +121,64 @@ func main() {
 	}
 	// Output the answer for part a
 	fmt.Println( Iabs(x)+Iabs(y) )
+
+	// Clean out nodes map and reset x,y,dir
+	nodes = make(map[Key]int)
+	nodes[Key{ 0, 0 }] = 1
+	x = 0
+	y = 0
+	dir = "E"
+
+	val = 1
+	for val < nos {
+		// Move one more place on in current direction
+		if dir == "E" {
+			x+=1
+		} else if dir == "N" {
+			y+=1
+		} else if dir == "W" {
+			x-=1
+		} else if dir == "S" {
+			y-=1
+		} else {
+			fmt.Println( "ERROR, Unhandled direction ["+dir+"]" )
+			return
+		}
+		val = 0
+		// Check neighbours (including diagonals) to determine the value for this cell
+		cell_val, prs := nodes[Key{ x-1, y-1 }]; if prs { val += cell_val }
+		cell_val, prs = nodes[Key{ x, y-1 }]; if prs { val += cell_val }
+		cell_val, prs = nodes[Key{ x+1, y-1 }]; if prs { val += cell_val }
+		cell_val, prs = nodes[Key{ x-1, y }]; if prs { val += cell_val }
+		cell_val, prs = nodes[Key{ x+1, y }]; if prs { val += cell_val }
+		cell_val, prs = nodes[Key{ x-1, y+1 }]; if prs { val += cell_val }
+		cell_val, prs = nodes[Key{ x, y+1 }]; if prs { val += cell_val }
+		cell_val, prs = nodes[Key{ x+1, y+1 }]; if prs { val += cell_val }
+		nodes[Key{ x, y }] = val
+		// If spot to the 'left' of here is empty then we need to turn left
+		// TODO - duplicated following section from above, DRY it somehow
+		if dir == "E" { // Check if value to 'left' (N) exists
+			_, prs := nodes[Key{ x, y+1 }]
+			if !prs { // No value, Turn left (N)
+				dir = "N"
+			}
+		} else if dir == "N" { // Check if value to 'left' (W) exists
+			_, prs := nodes[Key{ x-1, y }]
+			if !prs { // No value, Turn left (W)
+				dir = "W"
+			}
+		} else if dir == "W" { // Check if value to 'left' (S) exists
+			_, prs := nodes[Key{ x, y-1 }]
+			if !prs { // No value, Turn left (S)
+				dir = "S"
+			}
+		} else if dir == "S" { // Check if value to 'left' (E) exists
+			_, prs := nodes[Key{ x+1, y }]
+			if !prs { // No value, Turn left (E)
+				dir = "E"
+			}
+		}
+	}
+	// Here we should have a value larger than the input number
+	fmt.Println( val )
 }
