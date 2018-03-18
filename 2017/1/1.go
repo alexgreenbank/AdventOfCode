@@ -72,17 +72,27 @@ func aoc2017day1a( text string ) int {
 }
 
 func aoc2017day1b( text string ) int {
+	// Calculate length once
+	len := len( text )
 	// If input is shorter than 2 characters than it cannot have a non-zero score
-	if len( text ) < 2 {
+	if len < 2 {
 		return 0
 	}
-	if len( text ) % 2 != 0 {
+	if len % 2 != 0 {
 		// TODO - how to report errors properly
 		fmt.Println( "aoc2017day1b: ERROR: Odd number of digits in input ["+text+"]" )
 		return 0
 	}
 	tot := 0
-	return( tot )
+	// Loop through the first half of the string and check against the character len/2 onwards
+	for i := 0; i < len/2; i++ {
+		if text[i] == text[i+(len/2)] {
+			n, _ := strconv.Atoi( string(text[i]) )
+			tot += n
+		}
+	}
+	// The second half of the string should yield the same answer, so we return double the result for the first half
+	return( tot*2 )
 }
 
 func main() {
@@ -95,11 +105,13 @@ func main() {
 		"91212129": 9,		// provided example
 	}
 	testdata2017day1b := map[string]int {
-		"1212": 6,
-		"1221": 0,
-		"123425": 4,
-		"123123": 12,
-		"12131415": 4,
+		"1212": 6,		// provided example
+		"1221": 0,		// provided example
+		"123425": 4,		// provided example
+		"123123": 12,		// provided example
+		"12131415": 4,		// provided example
+		"11": 2,		// simple match
+		"12": 0,		// simple non-match
 	}
 	for text, expected := range testdata2017day1a {
 		tot := aoc2017day1a( text )
