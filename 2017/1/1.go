@@ -23,6 +23,23 @@
 // 
 // What is the solution to your captcha?
 
+// --- Part Two ---
+// 
+// You notice a progress bar that jumps to 50% completion. Apparently, the door isn't yet satisfied, but it did emit a star as encouragement. The instructions change:
+// 
+// Now, instead of considering the next digit, it wants you to consider the digit halfway around the circular list. That is, if your list contains 10 items, only include a digit in your sum if the digit 10/2 = 5 steps forward matches it. Fortunately, your list has an even number of elements.
+// 
+// For example:
+// 
+//     1212 produces 6: the list contains 4 items, and all four digits match the digit 2 items ahead.
+//     1221 produces 0, because every comparison is between a 1 and a 2.
+//     123425 produces 4, because both 2s match each other, but no other digit has a match.
+//     123123 produces 12.
+//     12131415 produces 4.
+// 
+// What is the solution to your new captcha?
+
+
 package main
 
 import (
@@ -54,8 +71,22 @@ func aoc2017day1a( text string ) int {
 	return( tot )
 }
 
+func aoc2017day1b( text string ) int {
+	// If input is shorter than 2 characters than it cannot have a non-zero score
+	if len( text ) < 2 {
+		return 0
+	}
+	if len( text ) % 2 != 0 {
+		// TODO - how to report errors properly
+		fmt.Println( "aoc2017day1b: ERROR: Odd number of digits in input ["+text+"]" )
+		return 0
+	}
+	tot := 0
+	return( tot )
+}
+
 func main() {
-	testdata := map[string]int {
+	testdata2017day1a := map[string]int {
 		"11": 1,		// simple match
 		"12": 0,		// simple non-match
 		"1122": 3,		// provided example
@@ -63,17 +94,32 @@ func main() {
 		"1234": 0,		// provided example
 		"91212129": 9,		// provided example
 	}
-	for text, expected := range testdata {
+	testdata2017day1b := map[string]int {
+		"1212": 6,
+		"1221": 0,
+		"123425": 4,
+		"123123": 12,
+		"12131415": 4,
+	}
+	for text, expected := range testdata2017day1a {
 		tot := aoc2017day1a( text )
 		if tot != expected {
-			fmt.Println( "ERROR: ["+text+"] returned "+strconv.Itoa(tot)+" and not expected value "+strconv.Itoa(expected) )
+			fmt.Println( "ERROR: 2017_1_a ["+text+"] returned "+strconv.Itoa(tot)+" and not expected value "+strconv.Itoa(expected) )
+		}
+	}
+	for text, expected := range testdata2017day1b {
+		tot := aoc2017day1b( text )
+		if tot != expected {
+			fmt.Println( "ERROR: 2017_1_b ["+text+"] returned "+strconv.Itoa(tot)+" and not expected value "+strconv.Itoa(expected) )
 		}
 	}
 	// Read in the strings from stdin and process them
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		text := scanner.Text()
-		tot := aoc2017day1a( text )
-		fmt.Println( tot )
+		tota := aoc2017day1a( text )
+		fmt.Println( tota )
+		totb := aoc2017day1b( text )
+		fmt.Println( totb )
 	}
 }
