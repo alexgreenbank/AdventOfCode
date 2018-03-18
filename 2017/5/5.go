@@ -27,6 +27,12 @@
 // 
 // How many steps does it take to reach the exit?
 
+// Now, the jumps are even stranger: after each jump, if the offset was three or more, instead decrease it by 1. Otherwise, increase it by 1 as before.
+// 
+// Using this rule with the above example, the process now takes 10 steps, and the offset values after finding the exit are left as 2 3 2 3 -1.
+// 
+// How many steps does it now take to reach the exit?
+
 package main
 
 import (
@@ -37,27 +43,51 @@ import (
 )
 
 func main() {
-	instr := make( map[int]int )
+	instr_a := make( map[int]int )
+	instr_b := make( map[int]int )
         scanner := bufio.NewScanner(os.Stdin)
 	// Read in instructions and store in map of pc -> offset
+	// Keep two copies as the two parts have different rules for instruction modification
 	// pc = 0 is the first instruction
 	pc := 0
         for scanner.Scan() {
                 text := scanner.Text()
 		offset, _ := strconv.Atoi( text )
-		instr[pc]=offset
+		instr_a[pc]=offset
+		instr_b[pc]=offset
 		pc++
 	}
-	// Begin execution
+
+	// Begin execution for part a
 	pc=0
 	steps := 0
 	// Execute whilst pc is in range of instructions
-	for pc >= 0 && pc < len(instr) {
+	for pc >= 0 && pc < len(instr_a) {
 		// Increment instruction at pc
-		// fmt.Println( "pc="+strconv.Itoa(pc)+" i="+strconv.Itoa(instr[pc]) )
-		instr[pc]++
+		instr_a[pc]++
 		// Move pc on by jump offset (minus 1 as we have just incremented it)
-		pc+=instr[pc]-1
+		pc+=instr_a[pc]-1
+		steps++
+	}
+	fmt.Println( steps )
+
+	// Begin execution for part b
+	pc=0
+	steps = 0
+	// Execute whilst pc is in range of instructions
+	for pc >= 0 && pc < len(instr_b) {
+		// Keep copy of offset as we are about to modify instr_b[pc]
+		// We can't guess at the state before the modification as it is ambiguous as
+		// 1->2 and 3->2 so we need to keep a copy
+		offset := instr_b[pc]
+		// Modify instruction at pc
+		if instr_b[pc] >= 3 {
+			instr_b[pc]--
+		} else {
+			instr_b[pc]++
+		}
+		// Move pc on by jump offset saved from earlier
+		pc+=offset
 		steps++
 	}
 	fmt.Println( steps )
